@@ -1,39 +1,15 @@
 let datos = JSON.parse(localStorage.getItem("gastos")) || [];
 
-function guardar() {
-  const nuevo = {
-    fecha: document.getElementById("fecha").value,
-    tipo: document.getElementById("tipo").value,
-    categoria: document.getElementById("categoria").value,
-    persona: document.getElementById("persona").value,
-    moneda: document.getElementById("moneda").value,
-    monto: document.getElementById("monto").value,
-    detalle: document.getElementById("detalle").value
-  };
+const usuarios = {
+  admin: "admin123",
+  hugo: "hugo123",
+  loli: "loli123"
+};
 
-  datos.push(nuevo);
-  localStorage.setItem("gastos", JSON.stringify(datos));
+function iniciarSesion() {
+  const usuario = document.getElementById("usuario").value;
+  const clave = document.getElementById("clave").value;
+  const errorLogin = document.getElementById("errorLogin");
 
-  mostrar();
-}
-
-function mostrar() {
-  const tabla = document.querySelector("#tabla tbody");
-  tabla.innerHTML = "";
-
-  datos.forEach(d => {
-    tabla.innerHTML += `
-      <tr>
-        <td>${d.fecha}</td>
-        <td>${d.tipo}</td>
-        <td>${d.categoria}</td>
-        <td>${d.persona}</td>
-        <td>${d.moneda}</td>
-        <td>${d.monto}</td>
-        <td>${d.detalle}</td>
-      </tr>
-    `;
-  });
-}
-
-mostrar();
+  if (usuarios[usuario] === clave) {
+    localStorage.setItem("usuarioActivo", usuario);
