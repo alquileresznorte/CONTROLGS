@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#0F172A"/>
+<title>Formulario de Ingreso — GestiónProp</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0F172A;color:#F1F5F9;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;font-size:14px;padding-bottom:40px}
+.header{background:linear-gradient(135deg,#1E3A5F,#2D6A9F);padding:24px 20px;text-align:center}
+.header-logo{font-size:36px;margin-bottom:6px}
+.header-title{font-size:20px;font-weight:800;margin-bottom:2px}
+.header-sub{font-size:12px;opacity:0.8}
+.container{max-width:600px;margin:0 auto;padding:20px 16px}
+.card{background:#1E293B;border-radius:14px;padding:20px;border:1px solid #334155;margin-bottom:14px}
+.card-title{font-size:14px;font-weight:800;color:#93C5FD;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:12px}
+.lbl{color:#94A3B8;font-size:11px;font-weight:600;display:block;margin-bottom:4px}
+.req{color:#EF4444}
+.inp{background:#0F172A;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#F1F5F9;width:100%;outline:none;font-size:14px}
+.inp:focus{border-color:#3B82F6}
+.inp.error{border-color:#EF4444}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pre-loaded{background:#1E3A5F22;border:1px solid #2D6A9F44;border-radius:8px;padding:10px 12px;color:#93C5FD;font-size:13px;font-weight:600}
+.pre-label{color:#64748B;font-size:10px;margin-bottom:2px}
+
+/* Subida de fotos */
+.upload-area{border:2px dashed #334155;border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative}
+.upload-area:hover,.upload-area.drag{border-color:#3B82F6;background:#3B82F611}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:28px;margin-bottom:6px}
+.upload-text{color:#94A3B8;font-size:12px}
+.upload-preview{width:100%;border-radius:8px;max-height:200px;object-fit:cover;margin-top:8px}
+.upload-done{border-color:#10B981;background:#10B98111}
+.upload-done .upload-text{color:#10B981}
+
+/* Acuerdo */
+.acuerdo-box{background:#0F172A;border-radius:10px;padding:14px;max-height:300px;overflow-y:auto;font-size:11px;color:#CBD5E1;line-height:1.8;margin-bottom:12px;white-space:pre-wrap}
+.acepta-check{display:flex;align-items:center;gap:12px;cursor:pointer;padding:14px;background:#0F172A;border-radius:10px;border:2px solid #334155;margin-bottom:10px}
+.acepta-check.active{border-color:#10B981}
+.check-box{width:22px;height:22px;border-radius:5px;background:transparent;border:2px solid #475569;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:#fff;transition:all 0.2s}
+.check-box.active{background:#10B981;border-color:#10B981}
+
+/* Progreso */
+.progress{display:flex;justify-content:center;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.step-dot{width:10px;height:10px;border-radius:50%;background:#334155;transition:all 0.3s}
+.step-dot.done{background:#10B981}
+.step-dot.active{background:#3B82F6;transform:scale(1.3)}
+.step-label{text-align:center;font-size:11px;color:#64748B;margin-bottom:16px}
+
+/* Botones */
+.btn{border-radius:8px;padding:12px 20px;font-weight:700;cursor:pointer;border:none;font-size:14px;width:100%;margin-top:8px}
+.btn-p{background:#3B82F6;color:#fff}
+.btn-ok{background:#10B981;color:#fff}
+.btn-g{background:transparent;color:#94A3B8;border:1px solid #334155}
+.btn-nav{display:flex;gap:8px;margin-top:16px}
+.btn-nav .btn{margin-top:0}
+
+/* Info boxes */
+.info{background:#1E3A5F22;border-left:3px solid #3B82F6;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:#93C5FD;margin-bottom:10px}
+.warn{background:#F59E0B11;border-left:3px solid #F59E0B;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:#FCD34D;margin-bottom:10px}
+
+/* Éxito */
+.success-screen{text-align:center;padding:40px 20px}
+.success-icon{font-size:64px;margin-bottom:16px}
+.success-title{font-size:22px;font-weight:800;color:#10B981;margin-bottom:8px}
+.success-sub{color:#64748B;font-size:13px;line-height:1.6}
+.contrato-num{background:#10B98122;border:1px solid #10B98144;border-radius:10px;padding:16px;margin:16px 0;font-size:20px;font-weight:800;color:#10B981}
+
+.err-msg{color:#EF4444;font-size:11px;margin-top:3px;display:none}
+.err-msg.show{display:block}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">🏢</div>
+  <div class="header-title">GestiónProp</div>
+  <div class="header-sub">Formulario de ingreso de inquilinos</div>
+</div>
+
+<div class="container" id="app">
+  <!-- Render dinámico -->
+</div>
+
+<script>
+// FIREBASE
+firebase.initializeApp({
+  apiKey:"AIzaSyDhuSP_WTWI3hqf5GqgFExkptFfpqJUn50",
+  authDomain:"gestion-prop.firebaseapp.com",
+  databaseURL:"https://gestion-prop-default-rtdb.firebaseio.com",
+  projectId:"gestion-prop"
+});
+var DB=firebase.database();
+
+// ── DATOS PRE-CARGADOS (pasan por URL) ────────────────────────────────────────
+const params = new URLSearchParams(location.search);
+const PRE = {
+  unidad:   params.get("u") || "",
+  edificio: params.get("ed") || "",
+  dir:      params.get("dir") || "",
+  alquiler: params.get("alq") || "",
+  deposito: params.get("dep") || "",
+  gastos:   params.get("gs") || "",
+  ingreso:  params.get("ing") || "",
+  egreso:   params.get("egr") || "",
+  posesion: params.get("pos") || "",
+};
+
+const PASOS = 5;
+let paso = 1;
+let acepta = false;
+
+const DATA = {
+  // Pre-cargados
+  unidad: PRE.unidad, edificio: PRE.edificio, dir: PRE.dir,
+  alquiler: PRE.alquiler, deposito: PRE.deposito, gastos: PRE.gastos,
+  ingreso: PRE.ingreso, egreso: PRE.egreso, posesion: PRE.posesion,
+  // Inquilino 1
+  nom1:"", dni1:"", tel1:"", email1:"", trabajo1:"", dom1:"",
+  // Inquilino 2
+  nom2:"", dni2:"", tel2:"", email2:"", trabajo2:"",
+  // Emergencia
+  ct_emerg:"", tel_emerg:"", rel_emerg:"",
+  // Fotos
+  foto_dni1f: null, foto_dni1d: null, foto_sue1: null,
+  foto_dni2f: null, foto_dni2d: null, foto_sue2: null,
+  // Acuerdo
+  acepta: false, firma: "",
+  // Obs
+  obs_ingreso:"",
+};
+
+const ACUERDO = `ACUERDO DE CONVIVENCIA Y LOCACIÓN
+
+Es indispensable para la buena convivencia respetar las normas básicas de buenas costumbres.
+
+Dado el tamaño de los departamentos y las condiciones particulares del alquiler, se estipula que es apto para vivienda de 1 o 2 personas adultas (sin chicos y sin mascotas).
+
+A fin de no molestar a sus vecinos rogamos no hacer reuniones de más de 3 personas, respetar horarios de descanso, orden, limpieza, etc.
+
+Los espacios comunes son de tránsito, no de permanencia ni depósito de objetos personales (moto, bicicleta, tenders, muebles, etc.)
+
+Asegurarse siempre de tener el departamento ventilado a fin de evitar la condensación de agua, proliferación de hongos y manchas de humedad.
+
+RESPECTO A LOS SERVICIOS:
+
+La basura se saca en bolsas, después de las 12hs (no dejar botellas o cajas sueltas ya que el recolector no las lleva).
+
+Los servicios se encuentran incluidos sin costo adicional haciendo un uso racional y restringido de los mismos. Considerando para el uso de energía eléctrica lámparas de bajo consumo, heladera, TV, y algún electrodoméstico de bajo consumo (celular, tablet, etc.). Si usted se abusa sobrecargará la línea generando desperfectos. Queda terminantemente prohibido el uso de lavarropas, aire acondicionado, caloventor o cualquier artefacto que no sea categoría A o B (en caso de utilizarlo se cobrará un adicional).
+
+Para el resto de los servicios utilizamos el mismo criterio haciendo un uso lógico del gas, agua, cloacas, wifi, etc.
+
+El wifi es público, no pudiendo garantizarse su óptimo funcionamiento en horas pico, ni la fluidez de servicio en todos los puntos del edificio (tal vez deba salir al pasillo o algún espacio común para utilizarlo).
+
+Cualquier desperfecto que ocasione por desidia, mal uso o negligencia; la reparación correrá por su cuenta.
+
+Tenga en cuenta que usted vive en una sociedad donde en verano falta agua y cortan la luz, los días de lluvia colapsan las cloacas, etc. Por favor sea razonable en tales circunstancias que exceden a nuestra predisposición para buscar una solución.
+
+RESPECTO A LA ADMINISTRACIÓN Y MANTENIMIENTO:
+
+El alquiler se abona en efectivo del 1 al 5 de cada mes con un descuento especial por pronto pago. Si usted abona luego de esa fecha deberá abonar el valor pactado, más un 10% correspondiente al monto real del alquiler.
+
+El depósito se devuelve cumplidos los 12 meses de alquiler, en ese momento si usted decide irse deberá informarlo y contra entrega del departamento en iguales condiciones a las que lo recibió, se le entregará el depósito. Si decide quedarse, este acuerdo seguirá en vigencia por 12 meses más y así sucesivamente.
+
+Anualmente se abonará el valor de un mes en concepto de renovación (cargos de gestión y mantenimiento general).
+
+El incremento del alquiler se efectuará anualmente según el IPC del periodo.
+
+Dado que en el valor del alquiler se incluyen los servicios y estos aumentan sin aviso y en porcentajes imprevisibles nos vemos obligados a ajustar el valor de los servicios cada 4 meses (en abril, agosto y diciembre, tomamos estos meses como parámetro para poder prorratear el impacto del consumo y precio).
+
+Administración funciona de lunes a viernes de 8 a 13 hs y de 14 a 18 hs, sábados de 8 a 12 hs. Si es una emergencia que requiere inmediata solución no dude en llamar, sino rogamos respetar los horarios. Mantenimiento funciona de lunes a viernes de 8 a 16 Hs.
+
+Si su departamento sufre algún desperfecto deberá comunicarse con administración al 1555787641 a fin de coordinar su reparación, el personal de mantenimiento no hará ningún trabajo sin la previa directiva de administración o fuera del horario antes mencionado.`;
+
+function fmt(n){return n?("$"+Number(n).toLocaleString("es-AR")):"—";}
+function hoy(){return new Date().toISOString().split("T")[0];}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function saveField(k){
+  const el=document.getElementById("f-"+k);
+  if(el)DATA[k]=el.value;
+}
+function saveAllFields(){
+  ["nom1","dni1","tel1","email1","trabajo1",
+   "nom2","dni2","tel2","email2","trabajo2",
+   "ct_emerg","tel_emerg","rel_emerg","firma","obs_ingreso"].forEach(saveField);
+}
+function nc(){
+  let n=parseInt(localStorage.getItem("gp_nc")||"1005")+1;
+  localStorage.setItem("gp_nc",n);
+  return String(n).padStart(6,"0");
+}
+
+// ── RENDER PRINCIPAL ──────────────────────────────────────────────────────────
+function render(){
+  const app=document.getElementById("app");
+  if(paso===6){renderExito();return;}
+  
+  const labels=["Contrato","Titular","2do Inquilino","Acuerdo","Confirmación"];
+  const dots=Array.from({length:PASOS},(_,i)=>`<div class="step-dot ${i+1<paso?"done":i+1===paso?"active":""}"></div>`).join("");
+  
+  app.innerHTML=`
+    <div class="progress">${dots}</div>
+    <div class="step-label">Paso ${paso} de ${PASOS} — ${labels[paso-1]}</div>
+    <div id="step-content"></div>
+  `;
+  
+  if(paso===1) renderPaso1();
+  else if(paso===2) renderPaso2();
+  else if(paso===3) renderPaso3();
+  else if(paso===4) renderPaso4();
+  else if(paso===5) renderPaso5();
+}
+
+// PASO 1 — Datos del contrato (pre-cargados por empleado)
+function renderPaso1(){
+  const c=document.getElementById("step-content");
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-title">🏠 Datos del Departamento</div>
+    ${PRE.unidad?`
+    <div class="field"><div class="pre-label">Unidad asignada</div><div class="pre-loaded">${PRE.unidad} — ${PRE.dir||PRE.edificio}</div></div>
+    <div class="grid2">
+      <div class="field"><div class="pre-label">Alquiler mensual</div><div class="pre-loaded">${fmt(PRE.alquiler)}</div></div>
+      <div class="field"><div class="pre-label">Depósito</div><div class="pre-loaded">${fmt(PRE.deposito)}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><div class="pre-label">Gastos de gestión</div><div class="pre-loaded">${fmt(PRE.gastos)}</div></div>
+      <div class="field"><div class="pre-label">Total al ingreso</div><div class="pre-loaded" style="color:#10B981">${fmt(Number(PRE.alquiler||0)+Number(PRE.deposito||0)+Number(PRE.gastos||0))}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><div class="pre-label">Inicio de contrato</div><div class="pre-loaded">${PRE.ingreso}</div></div>
+      <div class="field"><div class="pre-label">Fin de contrato</div><div class="pre-loaded">${PRE.egreso}</div></div>
+    </div>
+    ${PRE.posesion?`<div class="field"><div class="pre-label">Fecha real de posesión</div><div class="pre-loaded">${PRE.posesion}</div></div>`:""}
+    <div class="info">✅ Estos datos fueron pre-cargados por el equipo de administración. Si hay algún error, comunicalo antes de continuar.</div>
+    `:
+    `<div class="warn">⚠️ No se recibieron datos pre-cargados. Completá los datos del contrato:</div>
+    <div class="field"><label class="lbl">Unidad <span class="req">*</span></label><input class="inp" id="f-unidad" value="${DATA.unidad}" placeholder="Ej: R1-5"/></div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Alquiler mensual $</label><input class="inp" type="number" id="f-alquiler" value="${DATA.alquiler}"/></div>
+      <div class="field"><label class="lbl">Depósito $</label><input class="inp" type="number" id="f-deposito" value="${DATA.deposito}"/></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Gastos gestión $</label><input class="inp" type="number" id="f-gastos" value="${DATA.gastos}"/></div>
+      <div class="field"><label class="lbl">Fecha real de posesión</label><input class="inp" type="date" id="f-posesion" value="${DATA.posesion}"/></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Inicio contrato</label><input class="inp" type="date" id="f-ingreso" value="${DATA.ingreso}"/></div>
+      <div class="field"><label class="lbl">Fin contrato</label><input class="inp" type="date" id="f-egreso" value="${DATA.egreso}"/></div>
+    </div>
+    `}
+  </div>
+  <div class="btn-nav">
+    <button class="btn btn-p" onclick="next1()">Siguiente →</button>
+  </div>`;
+}
+
+function next1(){
+  if(!PRE.unidad){
+    const u=document.getElementById("f-unidad");
+    if(!u||!u.value){u&&(u.className="inp error");alert("La unidad es obligatoria");return;}
+    DATA.unidad=u.value;
+    ["alquiler","deposito","gastos","ingreso","egreso","posesion"].forEach(saveField);
+  }
+  paso=2;render();
+}
+
+// PASO 2 — Inquilino titular
+function renderPaso2(){
+  const c=document.getElementById("step-content");
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-title">👤 Inquilino Titular</div>
+    <div class="field"><label class="lbl">Nombre y apellido <span class="req">*</span></label><input class="inp" id="f-nom1" value="${esc(DATA.nom1)}" placeholder="Apellido, Nombre"/><div class="err-msg" id="e-nom1">Campo obligatorio</div></div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">DNI <span class="req">*</span></label><input class="inp" id="f-dni1" value="${esc(DATA.dni1)}" placeholder="00.000.000"/><div class="err-msg" id="e-dni1">Campo obligatorio</div></div>
+      <div class="field"><label class="lbl">Teléfono <span class="req">*</span></label><input class="inp" type="tel" id="f-tel1" value="${esc(DATA.tel1)}" placeholder="5491112345678"/><div class="err-msg" id="e-tel1">Campo obligatorio</div></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Email</label><input class="inp" type="email" id="f-email1" value="${esc(DATA.email1)}"/></div>
+
+    </div>
+    <div class="field"><label class="lbl">Trabajo / Actividad</label><input class="inp" id="f-trabajo1" value="${esc(DATA.trabajo1)}" placeholder="Empresa, profesión, actividad"/></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📷 Documentación requerida</div>
+    <p style="color:#64748B;font-size:12px;margin-bottom:12px">Tomá fotos nítidas con buena iluminación</p>
+    ${uploadField("foto_dni1f","📷 Foto DNI frente","dni1f",true)}
+    ${uploadField("foto_dni1d","📷 Foto DNI dorso","dni1d",true)}
+    ${uploadField("foto_sue1","📷 Recibo de sueldo","sue1",true)}
+  </div>
+
+  <div class="card">
+    <div class="card-title">🆘 Contacto de emergencia</div>
+    <div class="field"><label class="lbl">Nombre y apellido</label><input class="inp" id="f-ct_emerg" value="${esc(DATA.ct_emerg)}"/></div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Teléfono</label><input class="inp" type="tel" id="f-tel_emerg" value="${esc(DATA.tel_emerg)}"/></div>
+      <div class="field"><label class="lbl">Relación</label><input class="inp" id="f-rel_emerg" value="${esc(DATA.rel_emerg)}" placeholder="Ej: madre, hermano"/></div>
+    </div>
+  </div>
+
+  <div class="btn-nav">
+    <button class="btn btn-g" onclick="paso=1;render()">← Atrás</button>
+    <button class="btn btn-p" onclick="next2()">Siguiente →</button>
+  </div>`;
+  bindUploads();
+}
+
+function next2(){
+  saveAllFields();
+  let ok=true;
+  [["nom1","e-nom1"],["dni1","e-dni1"],["tel1","e-tel1"]].forEach(([f,e])=>{
+    const el=document.getElementById("f-"+f);
+    const em=document.getElementById(e);
+    if(!el||!el.value.trim()){if(el)el.className="inp error";if(em)em.className="err-msg show";ok=false;}
+    else{if(el)el.className="inp";if(em)em.className="err-msg";}
+  });
+  if(!ok){alert("Completá los campos obligatorios marcados en rojo");return;}
+  paso=3;render();
+}
+
+// PASO 3 — 2do inquilino
+function renderPaso3(){
+  const c=document.getElementById("step-content");
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-title">👥 Segundo Inquilino <span style="color:#64748B;font-size:12px;font-weight:400">(opcional)</span></div>
+    <div class="info">Si el departamento es para dos personas, completá los datos. Si es para uno solo, dejá todo en blanco y avanzá.</div>
+    <div class="field"><label class="lbl">Nombre y apellido</label><input class="inp" id="f-nom2" value="${esc(DATA.nom2)}"/></div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">DNI</label><input class="inp" id="f-dni2" value="${esc(DATA.dni2)}"/></div>
+      <div class="field"><label class="lbl">Teléfono</label><input class="inp" type="tel" id="f-tel2" value="${esc(DATA.tel2)}"/></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Email</label><input class="inp" type="email" id="f-email2" value="${esc(DATA.email2)}"/></div>
+      <div class="field"><label class="lbl">Lugar de trabajo</label><input class="inp" id="f-trabajo2" value="${esc(DATA.trabajo2)}"/></div>
+    </div>
+  </div>
+  <div id="docs2-area" style="display:${DATA.nom2?'block':'none'}">
+  <div class="card">
+    <div class="card-title">📷 Documentación inquilino 2</div>
+    ${uploadField("foto_dni2f","📷 Foto DNI frente","dni2f",false)}
+    ${uploadField("foto_dni2d","📷 Foto DNI dorso","dni2d",false)}
+    ${uploadField("foto_sue2","📷 Recibo de sueldo","sue2",false)}
+  </div>
+  </div>
+  <div class="btn-nav">
+    <button class="btn btn-g" onclick="paso=2;render()">← Atrás</button>
+    <button class="btn btn-p" onclick="next3()">Siguiente →</button>
+  </div>`;
+  document.getElementById("f-nom2").addEventListener("input",function(){
+    document.getElementById("docs2-area").style.display=this.value?"block":"none";
+  });
+  bindUploads();
+}
+
+function next3(){saveAllFields();paso=4;render();}
+
+// PASO 4 — Acuerdo
+function renderPaso4(){
+  const c=document.getElementById("step-content");
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-title">📜 Acuerdo de Convivencia y Locación</div>
+    <div class="acuerdo-box">${esc(ACUERDO)}</div>
+    <div class="acepta-check ${acepta?"active":""}" id="acepta-row" onclick="toggleAcepta()">
+      <div class="check-box ${acepta?"active":""}" id="acepta-box">${acepta?"✓":""}</div>
+      <span style="color:${acepta?"#10B981":"#94A3B8"};font-size:13px;font-weight:600">Leí y acepto los términos del acuerdo de convivencia y locación</span>
+    </div>
+    <div class="field">
+      <label class="lbl">Firma digital — escribí tu nombre y apellido completo <span class="req">*</span></label>
+      <input class="inp" id="f-firma" value="${esc(DATA.firma)}" placeholder="${DATA.nom1||'Nombre y apellido'}"/>
+    </div>
+  </div>
+  <div class="btn-nav">
+    <button class="btn btn-g" onclick="paso=3;render()">← Atrás</button>
+    <button class="btn btn-p" onclick="next4()">Siguiente →</button>
+  </div>`;
+}
+
+function toggleAcepta(){
+  acepta=!acepta;DATA.acepta=acepta;
+  document.getElementById("acepta-row").className="acepta-check"+(acepta?" active":"");
+  document.getElementById("acepta-box").className="check-box"+(acepta?" active":"");
+  document.getElementById("acepta-box").innerHTML=acepta?"✓":"";
+  document.querySelector("#acepta-row span").style.color=acepta?"#10B981":"#94A3B8";
+}
+
+function next4(){
+  saveAllFields();
+  if(!acepta){alert("Debés aceptar el acuerdo de convivencia para continuar");return;}
+  if(!DATA.firma||!DATA.firma.trim()){alert("La firma digital es obligatoria");return;}
+  paso=5;render();
+}
+
+// PASO 5 — Confirmación
+function renderPaso5(){
+  const total=Number(DATA.alquiler||0)+Number(DATA.deposito||0)+Number(DATA.gastos||0);
+  const rows=[
+    ["Unidad",DATA.unidad||PRE.unidad],
+    ["Dirección",DATA.dir||PRE.dir],
+    ["Titular",DATA.nom1],
+    ["DNI",DATA.dni1],
+    ["Teléfono",DATA.tel1],
+    ["Email",DATA.email1||"—"],
+    ["Trabajo",DATA.trabajo1||"—"],
+    ...(DATA.nom2?[["2do inquilino",DATA.nom2],["DNI 2",DATA.dni2]]:[]),
+    ["Contacto emergencia",DATA.ct_emerg?`${DATA.ct_emerg} (${DATA.rel_emerg}) ${DATA.tel_emerg}`:"—"],
+    ["Inicio contrato",DATA.ingreso||PRE.ingreso],
+    ["Fin contrato",DATA.egreso||PRE.egreso],
+    ...(DATA.posesion||PRE.posesion?[["Fecha posesión",DATA.posesion||PRE.posesion]]:[]),
+    ["Alquiler mensual",fmt(DATA.alquiler||PRE.alquiler)],
+    ["Depósito",fmt(DATA.deposito||PRE.deposito)],
+    ["Gastos gestión",fmt(DATA.gastos||PRE.gastos)],
+    ["TOTAL AL INGRESO",fmt(total||Number(PRE.alquiler||0)+Number(PRE.deposito||0)+Number(PRE.gastos||0))],
+    ["Acuerdo","✅ Aceptado"],
+    ["Firma digital",DATA.firma],
+  ];
+  const c=document.getElementById("step-content");
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-title">✅ Revisá tus datos antes de confirmar</div>
+    ${rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #334155;font-size:12px"><span style="color:#94A3B8">${k}</span><span style="color:#F1F5F9;font-weight:600;text-align:right;max-width:60%">${esc(v)}</span></div>`).join("")}
+  </div>
+  <div class="warn">⚠️ Una vez enviado, solo la administración podrá modificar los datos.</div>
+  <div class="btn-nav">
+    <button class="btn btn-g" onclick="paso=4;render()">← Atrás</button>
+    <button class="btn btn-ok" onclick="guardar()">✓ Confirmar y Enviar</button>
+  </div>`;
+}
+
+function guardar(){
+  const total=Number(DATA.alquiler||PRE.alquiler||0)+Number(DATA.deposito||PRE.deposito||0)+Number(DATA.gastos||PRE.gastos||0);
+  const contrato=nc();
+  const registro={
+    id:Date.now(),contrato,
+    unidad:DATA.unidad||PRE.unidad,
+    dir:DATA.dir||PRE.dir,
+    estado:"activo",tipo:"depto",
+    nombre:DATA.nom1+(DATA.nom2?` / ${DATA.nom2}`:""),
+    dni:DATA.dni1+(DATA.nom2&&DATA.dni2?` / ${DATA.dni2}`:""),
+    tel:DATA.tel1,email:DATA.email1,trabajo:DATA.trabajo1,
+    trabajo1:DATA.trabajo1,trabajo2:DATA.trabajo2,
+    nom2:DATA.nom2,dni2:DATA.dni2,tel2:DATA.tel2,email2:DATA.email2,
+    ct_emerg:DATA.ct_emerg,tel_emerg:DATA.tel_emerg,rel_emerg:DATA.rel_emerg,
+    ingreso:DATA.ingreso||PRE.ingreso,
+    egreso:DATA.egreso||PRE.egreso,
+    posesion:DATA.posesion||PRE.posesion,
+    alquiler:Number(DATA.alquiler||PRE.alquiler||0),
+    deposito:Number(DATA.deposito||PRE.deposito||0),
+    gastos:Number(DATA.gastos||PRE.gastos||0),
+    total_ingreso:total,
+    ultimo_ajuste:DATA.ingreso||PRE.ingreso,
+    obs_ingreso:DATA.obs_ingreso||"",
+    obs_egreso:"",
+    firma:DATA.firma,fecha_firma:hoy(),
+    fecha_registro:new Date().toISOString(),
+  };
+  // Guardar en Firebase (compartido con todos los dispositivos)
+  try{
+    DB.ref("iq").push(registro);
+    console.log("Guardado en Firebase OK");
+  }catch(e){
+    console.error("Error Firebase:",e);
+  }
+  DATA._contrato=contrato;
+  paso=6;render();
+}
+
+function renderExito(){
+  const app=document.getElementById("app");
+  app.innerHTML=`
+  <div class="card">
+    <div class="success-screen">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">¡Formulario enviado!</div>
+      <div class="success-sub">Tus datos fueron registrados correctamente.<br>La administración procesará tu ingreso a la brevedad.</div>
+      <div class="contrato-num">Contrato N° ${DATA._contrato}</div>
+      <div class="success-sub" style="margin-top:8px">Guardá este número de contrato.<br>Lo vas a necesitar para consultas.</div>
+    </div>
+  </div>
+  <div class="card" style="text-align:center">
+    <p style="color:#64748B;font-size:12px;margin-bottom:12px">¿Querés recibir una copia del acuerdo?</p>
+    <a href="https://wa.me/?text=${encodeURIComponent("✅ Mi contrato de alquiler fue registrado.\n\nContrato N°: "+DATA._contrato+"\nUnidad: "+(DATA.unidad||PRE.unidad)+"\nInicio: "+(DATA.ingreso||PRE.ingreso)+"\nAlquiler mensual: "+fmt(DATA.alquiler||PRE.alquiler)+"\n\nAdministración: 1555787641")}" target="_blank" style="background:#25D366;color:#fff;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;text-decoration:none;display:inline-block">💬 Compartir resumen por WhatsApp</a>
+  </div>`;
+}
+
+// ── UPLOAD FOTOS ──────────────────────────────────────────────────────────────
+function uploadField(key,label,inputId,req){
+  return `<div class="field">
+    <label class="lbl">${label}${req?' <span class="req">*</span>':''}</label>
+    <div class="upload-area ${DATA[key]?'upload-done':''}" id="ua-${inputId}">
+      <input type="file" accept="image/*" capture="environment" id="up-${inputId}" onchange="handleUpload('${key}','${inputId}')"/>
+      <div class="upload-icon">${DATA[key]?'✅':'📷'}</div>
+      <div class="upload-text">${DATA[key]?'Foto cargada — tocá para cambiar':'Tocá para sacar foto o elegir de galería'}</div>
+      ${DATA[key]?`<img src="${DATA[key]}" class="upload-preview"/>`:''}
+    </div>
+  </div>`;
+}
+
+function handleUpload(key,inputId){
+  const input=document.getElementById("up-"+inputId);
+  if(!input||!input.files[0])return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    DATA[key]=e.target.result;
+    const area=document.getElementById("ua-"+inputId);
+    if(area){
+      area.className="upload-area upload-done";
+      area.querySelector(".upload-icon").textContent="✅";
+      area.querySelector(".upload-text").textContent="Foto cargada — tocá para cambiar";
+      const existing=area.querySelector(".upload-preview");
+      if(existing)existing.remove();
+      const img=document.createElement("img");
+      img.src=e.target.result;img.className="upload-preview";
+      area.appendChild(img);
+    }
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function bindUploads(){
+  // ya manejado con onchange inline
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
