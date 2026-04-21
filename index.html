@@ -2,63 +2,113 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control de Gastos</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<h1>💰 Control de Gastos</h1>
+  <div id="loginBox" class="login-box">
+    <h1>🔐 Ingreso</h1>
+    <p class="subtexto">Elegí usuario e ingresá tu clave</p>
 
-<div class="form">
-  <input type="date" id="fecha">
+    <div class="form login-form">
+      <select id="usuario">
+        <option value="admin">Admin</option>
+        <option value="hugo">Hugo</option>
+        <option value="loli">Loli</option>
+      </select>
 
-  <select id="tipo">
-    <option value="Ingreso">Ingreso</option>
-    <option value="Gasto">Gasto</option>
-  </select>
+      <input type="password" id="clave" placeholder="Contraseña">
 
-  <select id="categoria">
-    <option value="Ingreso">Ingreso</option>
-    <option value="Vivienda">Vivienda</option>
-    <option value="Vehículos">Vehículos</option>
-    <option value="Ahorro">Ahorro</option>
-  </select>
+      <button onclick="iniciarSesion()">Entrar</button>
+    </div>
 
-  <select id="persona">
-    <option>Hugo</option>
-    <option>Lorena</option>
-    <option>Familiar</option>
-  </select>
+    <p id="errorLogin" class="error"></p>
+  </div>
 
-  <select id="moneda">
-    <option>ARS</option>
-    <option>USD</option>
-  </select>
+  <div id="appBox" style="display:none;">
+    <div class="top-bar">
+      <div>
+        <h1>💰 Control de Gastos</h1>
+        <p id="usuarioActivo" class="subtexto"></p>
+      </div>
+      <button class="logout-btn" onclick="cerrarSesion()">Salir</button>
+    </div>
 
-  <input type="number" id="monto" placeholder="Monto">
+    <div class="form">
+      <input type="date" id="fecha">
 
-  <input type="text" id="detalle" placeholder="Detalle">
+      <select id="tipo">
+        <option value="Ingreso">Ingreso</option>
+        <option value="Gasto">Gasto</option>
+      </select>
 
-  <button onclick="guardar()">Guardar</button>
-</div>
+      <select id="categoria">
+        <option value="Ingreso">Ingreso</option>
+        <option value="Vivienda">Vivienda</option>
+        <option value="Vehículos">Vehículos</option>
+        <option value="Salud">Salud</option>
+        <option value="Educación">Educación</option>
+        <option value="Profesionales">Profesionales</option>
+        <option value="Personal">Personal</option>
+        <option value="Ahorro">Ahorro</option>
+      </select>
 
-<h2>📊 Movimientos</h2>
-<table id="tabla">
-  <thead>
-    <tr>
-      <th>Fecha</th>
-      <th>Tipo</th>
-      <th>Categoría</th>
-      <th>Persona</th>
-      <th>Moneda</th>
-      <th>Monto</th>
-      <th>Detalle</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+      <select id="persona">
+        <option>Hugo</option>
+        <option>Lorena</option>
+        <option>Familiar</option>
+      </select>
 
-<script src="app.js"></script>
+      <select id="moneda">
+        <option>ARS</option>
+        <option>USD</option>
+      </select>
+
+      <input type="number" id="monto" placeholder="Monto">
+
+      <input type="text" id="detalle" placeholder="Detalle">
+
+      <button onclick="guardar()">Guardar</button>
+    </div>
+
+    <div class="resumen-box">
+      <h2>📈 Resumen rápido</h2>
+      <div class="resumen-grid">
+        <div class="card-resumen">
+          <span>Total ingresos</span>
+          <strong id="totalIngresos">$ 0</strong>
+        </div>
+        <div class="card-resumen">
+          <span>Total gastos</span>
+          <strong id="totalGastos">$ 0</strong>
+        </div>
+        <div class="card-resumen">
+          <span>Ahorro USD</span>
+          <strong id="totalUsd">USD 0</strong>
+        </div>
+      </div>
+    </div>
+
+    <h2>📊 Movimientos</h2>
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Categoría</th>
+          <th>Persona</th>
+          <th>Moneda</th>
+          <th>Monto</th>
+          <th>Detalle</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="app.js"></script>
 
 </body>
 </html>
